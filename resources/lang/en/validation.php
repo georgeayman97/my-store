@@ -155,6 +155,10 @@ return [
     |
     */
 
-    'attributes' => [],
+//modified names 
+    'attributes' => [
+        'parent_id' => 'Parent',
+        'email' => 'Email Address',
+    ],
 
 ];

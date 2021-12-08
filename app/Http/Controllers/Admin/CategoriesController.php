@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+
+use index;
 use App\Models\Category;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use index;
+use App\Http\Requests\CategoryRequest;
 
 class CategoriesController extends Controller
 {
@@ -46,9 +49,13 @@ class CategoriesController extends Controller
         // return view('admin/categories/index');
         // view second argument will be array which i wanna pass
         // or can be sent using with method
+
+        //recieve session
+        $success = session()->get('success');
         return view('admin.categories.index',[
             'categories' => $entries,
             'title' => 'Categories List',
+            'success' => $success,
         ]);
 
         // OR this way 
@@ -67,7 +74,8 @@ class CategoriesController extends Controller
     public function create()
     {
         $parents = Category::all();
-        return view('admin.categories.create',compact('parents'));
+        $category = new Category();
+        return view('admin.categories.create',compact('category','parents'));
     }
 
     /**
@@ -76,9 +84,89 @@ class CategoriesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        //
+        //validate rules
+        // $rules = [
+        //     'name' => 'required|string|max:255|min:3|unique:categories',
+        //     'parent_id' => 'nullable|int|exists:categories,id',
+        //     'description' => 'nullable|min:10',
+        //     'status' => 'required|in:active,draft',
+        //     'image' => 'image|max:1024000|dimensions:min_width=300,min_height=300'
+        // ];
+        // /*errors if happened laravel will send auto error 
+        // exception to a var called errors*/
+        // // last argument in validator is my custom msgs
+        // $clean = $request->validate($rules,[
+        //     'name.required' => 'Category name is required',
+        //     'description.min' => 'Please write more details ya ksmk',
+        //     'status.required' => 'e5tar :attribute ya 5wal'
+        // ]);
+        // return array of all fields
+
+        //Or this way
+        //$clean = $this->validate($request,$rules);
+
+
+        /* //If i wanna validate opject from file as excel but not here yet
+        $date = $request->all();
+        // validator opject 
+        $validator = Validator::make($data,$rules);
+        //validate 
+        try{
+        $clean = $validator->validate();
+        } catch (Trowable $e){
+            return redirect()->back()->withErrors($validator)->withInput();
+        }*/
+
+
+        /*
+        $errors = $validator->errors() ==> returns errors msgs 
+        $errors = $validator->failed() ==> returns which fields have errors
+        */
+
+
+        $request->merge([
+            'slug' => Str::slug($request->name),
+            'status' => 'active'
+        ]);
+        
+
+        /*return single field value
+        $request->description;
+        $request->input('description');
+        $request->get('description');
+        $request->post('description');
+        $request->query('description'); // ?description=value*/
+
+        /*Method 1
+        $category = new Category();
+        $category->name = $request->post('name');
+        $category->slug = Str::slug($request->post('name'));
+        $category->parent_id = $request->post('parent_id');
+        $category->description = $request->post('description');
+        $category->status = $request->post('status','active');
+        $category->save();*/
+
+        
+
+
+        //Method 2 Mass assignment
+        // Mass Assignment: i have to add proberty in its model have all fields names i wanna create 
+        Category::create($request->all());
+
+        //Method 3 Mass assignment
+        // Mass Assignment: i have to add proberty in its model have all fields names i wanna create 
+        // $category = new Category([
+            //     'description' => $request->post('description'),
+            //     'slug' => Str::slug($request->post('name')),
+            //     'name' => $request->post('name'),
+            //     'status' => $request->post('status','active'),
+            //     'parent_id' => $request->post('parent_id'),
+            // ]);
+        // $category->save();
+
+        return redirect(route('categories.index'));
     }
 
     /**
@@ -100,7 +188,16 @@ class CategoriesController extends Controller
      */
     public function edit($id)
     {
-        //
+        //$category = Category::where('id','=',$id)->first();
+        // find() func finds by default using the primary key 
+        // so we have to prepare the primary key in the model
+
+        $category = Category::find($id);
+        $parents = Category::where('id','<>',$category->id)->get();
+
+        // then we have to pass this category with this id to edit it
+
+        return view('admin.categories.edit',compact('category','parents'));
     }
 
     /**
@@ -110,9 +207,19 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        //
+        //Mass Assignment
+        // update in one step but it needs mass assignment
+        // Category::where('id','=',$id)->update($request->all());
+
+        // update in two steps select then update
+        $category = Category::find($id);
+
+        // Method 2
+        $category->update($request->all());
+
+        return redirect(route('categories.index'))->with('success','category updated');
     }
 
     /**
@@ -123,6 +230,19 @@ class CategoriesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //Method 1 (2 steps)
+        // $category = Category->find($id)->delete();
+
+        //Method 2 (1 step)
+        Category::destroy($id);
+
+        //Method 3 (1 step)
+        // Category::where('id','=',$id)->delete();
+
+        // session()->put('success','category deleted');
+
+        // session()->flash('success','category deleted');
+
+        return redirect(route('categories.index'))->with('success','category deleted');
     }
 }

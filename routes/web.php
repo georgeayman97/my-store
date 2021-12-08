@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\ProductsController;
+
+use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\CategoriesController;
 
 /*
@@ -30,4 +31,5 @@ Route::get('/', function () {
 
 // this route instead of the 7 routes 
 Route::resource('/admin/categories',CategoriesController::class);
+Route::resource('/admin/products',ProductsController::class);
 

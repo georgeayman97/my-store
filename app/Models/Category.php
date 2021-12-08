@@ -23,5 +23,10 @@ class Category extends Model
     // if we want to use timestamps in our table or not
     public $timestamps = true;
 
+    // Mass Assignment proberty
+    protected $fillable = [
+        'name','parent_id','slug','status','description'
+    ];
+
 
 }
