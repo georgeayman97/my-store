@@ -15,13 +15,9 @@
 
 @section('content')
 
-@if(Session::has('success'))
-<div class="alert alert-success">
-    {{ Session::get('success') }}
-</div>
-@endif
+<x-alert />
 
-<!-- <h2><?php //echo $title ?></h2> -->
+<!-- <h2>php //echo $title </h2> -->
 
 <table class="table">
     <thead>
@@ -40,14 +36,14 @@
     </thead>
     <tbody>
         <!-- we have automatic directives istead of this way -->
-        <!-- <?php// foreach($categories as $category) : // : istead of '{' ?> -->
+        <!-- php// foreach($categories as $category) : // : istead of '{'  -->
             @foreach($categories as $category)
         
         <tr>
             
             <td>{{ $loop->first?'First':($loop->last?'Last':$loop->iteration)}}</td>
             <td>{{ $category->id }}</td>
-            <td>{{ $category->name }}</td>
+            <td>{{ $category->original_name }}</td>
             <td>{{ $category->slug }}</td>
             <td>{{ $category->parent_name }}</td>
             <td>{{ $category->status }}</td>
@@ -60,7 +56,7 @@
             </form></td>
         </tr>
         @endforeach
-        <!-- <?php// endforeach // istead of '}' ?> -->
+        <!-- php// endforeach // istead of '}'  -->
     </tbody>
 </table>
 

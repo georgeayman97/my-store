@@ -12,6 +12,12 @@ use App\Http\Requests\CategoryRequest;
 
 class CategoriesController extends Controller
 {
+
+    public function __construct(){
+        // can apply verified middleware also to check if he is verified 
+        // $this->middleware(['auth','verified']);
+        $this->middleware(['auth']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -39,6 +45,7 @@ class CategoriesController extends Controller
         ])
         ->where('categories.status','=','active')
         ->orderBy('categories.name', 'ASC')
+        ->withTrashed()
         ->get();
 
         // RETURN COLLECTION OF STDOBJ
@@ -192,8 +199,13 @@ class CategoriesController extends Controller
         // find() func finds by default using the primary key 
         // so we have to prepare the primary key in the model
 
-        $category = Category::find($id);
-        $parents = Category::where('id','<>',$category->id)->get();
+        $category = Category::findOrFail($id);
+        
+        // if category not found send abort msg
+        if(!$category){
+            abort(404);
+        }
+        $parents = Category::withTrashed()->where('id','<>',$category->id)->get();
 
         // then we have to pass this category with this id to edit it
 

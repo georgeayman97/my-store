@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
@@ -7,7 +8,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AdminLTE 3 | Starter</title>
+  <title>My Store Dashboard</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -173,7 +174,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <img src="{{ asset('assets/admin/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
+          <!-- use Facade Auth internal by laravel to get user info -->
+          <a href="#" class="d-block">{{ Auth::user()->name }}</a>
         </div>
       </div>
 
@@ -236,33 +238,39 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    <div class="content-header">
+    <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">@yield('title')</h1>
+            @yield('title')
           </div><!-- /.col -->
           <div class="col-sm-6">
             @yield('breadcrumb')
           </div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
-    </div>
+    </section>
     <!-- /.content-header -->
 
     <!-- Main content -->
-    <div class="content">
-        <div class="container">
+    <section class="content">
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
+                <div class="col-lg-12">
+                  <div class="card card-primary">
+                    <div class="card-body">
+                      
                   <!-- to show a this directive in another place -->
                     @yield('content')
+                    
+                    </div>
+                  </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- /.content -->
-  </div>
+</section>
   <!-- /.content-wrapper -->
 
   <!-- Control Sidebar -->

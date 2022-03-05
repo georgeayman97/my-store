@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\Category;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +22,10 @@ class ProductsController extends Controller
         ->select([
             'products.*',
             'categories.name as category_name'
-        ])->paginate();
+        ])
+        ->withTrashed()
+        ->withoutGlobalScope('active')
+        ->paginate();
         // also i have func called simplePaginate just next and previous no page num
         return view('admin.products.index',[
             'products' => $products,
@@ -38,7 +40,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::pluck('name', 'id');
         return view('admin.products.create',[
             'categories'=> $categories,
             'product'=>new Product(),
@@ -54,9 +56,11 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         $request->validate(Product::validateRules());
-        $request->merge([
+
+        /*$request->merge([
             'slug' => Str::slug($request->post('name')),
-        ]);
+        ]);*/
+
         // mass assignment so we need $fillable
         $product = Product::create($request->all());
 
@@ -86,9 +90,11 @@ class ProductsController extends Controller
     public function edit($id)
     {
         $product = Product::findOrFail($id);
+        // withTrashed()  used for including soft deleted items 
+        // onlyTrashed()  find just deleted items
         return view('admin.products.edit',[
             'product' => $product,
-            'categories' => Category::all(),
+            'categories' => Category::withTrashed()->pluck('name', 'id'),
         ]);
     }
 
@@ -135,7 +141,7 @@ class ProductsController extends Controller
         $product->delete();
 
         // delete image from uploads disk
-        Storage::disk('uploads')->delete($product->image_path);
+        //Storage::disk('uploads')->delete($product->image_path);
 
         // same idea in native php
         //unlink(public_path('uploads/'. $product->image_path));
@@ -143,4 +149,39 @@ class ProductsController extends Controller
         
         return redirect()->route('products.index')->with('success',"$product->name Deleted Successfully");
     }
+
+    public function restoreProduct(Request $request, $id = null)
+    {
+        if($id){
+            $product = Product::onlyTrashed()->findOrFail($id);
+            $product->restore();
+            return redirect()->route('products.index')->with('success',"$product->name Restored Successfully");
+        }
+        Product::onlyTrashed()->restore();
+        return redirect()->route('products.index')->with('success',"All Products Restored Successfully");
+    }
+
+    public function forceDelete($id = null)
+    {
+        if($id){
+            $product = Product::onlyTrashed()->findOrFail($id);
+            $product->forceDelete();
+            return redirect()->route('products.index')->with('success',"$product->name Deleted forever Successfully");
+        }
+        Product::onlyTrashed()->forceDelete();
+        return redirect()->route('products.index')->with('success',"All Products Deleted forever Successfully");
+    }
+
+    public function trash()
+    {
+        $products = Product::onlyTrashed()->paginate();
+        
+
+        return view('admin.products.trash',[
+            'products' => $products,
+            'title' => 'Trash Products',
+        ]);
+    }
+
+    
 }

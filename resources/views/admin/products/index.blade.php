@@ -1,7 +1,14 @@
 @extends('layouts.admin')
 
 @section('title')
-{{$title}} <a href="/admin/products/create">Create</a>
+<div class="d-flex justify-content-between">
+    <h2>{{$title}}</h2>
+    <div >
+        <a class="btn btn-sm btn-outline-primary" href="{{ route('products.create') }}">Create</a>
+        <a class="btn btn-sm btn-outline-dark" href="{{ route('products.trash') }}">Trash</a>
+    </div>
+</div>
+ 
 @endsection
 
 @section('breadcrumb')
@@ -23,7 +30,7 @@
 
 <!-- <h2><?php //echo $title ?></h2> -->
 
-<table class="table">
+<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th></th>
@@ -39,11 +46,11 @@
     </thead>
     <tbody>
         <!-- we have automatic directives istead of this way -->
-        <!-- <?php// foreach($products as $product) : // : istead of '{' ?> -->
+        <!-- // foreach($products as $product) : // : istead of '{' ?> -->
             @foreach($products as $product)
         
         <tr>
-            <td><img src="{{ asset('uploads/'. $product->image_path) }}" width="60" alt=""></td>
+            <td><img src="{{ $product->image_url }}" width="60" alt=""></td>
             <td>{{ $product->name }}</td>
             <td>{{ $product->category_name }}</td>
             <td>{{ $product->price }}</td>
@@ -58,7 +65,7 @@
             </form></td>
         </tr>
         @endforeach
-        <!-- <?php// endforeach // istead of '}' ?> -->
+        <!-- php// endforeach // istead of '}' ?> -->
     </tbody>
 </table>
 

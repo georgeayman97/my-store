@@ -2,23 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
-    protected $products =
-    [
-        'watches' => 200,
-        't-shirts' => 50,
-        'cameras' => 250,
-        'mobiles' => 400,
-    ];
-    public function index()
+    
+    public function index(Request $request)
     {
-        return $this->products;
+        return Product::paginate();
     }
-    public function show($name)
+    public function show($id)
     {
-        return $this->products[$name] ?? 'Not Found! ';
+        $products = Product::findOrFail($id);
+        return $products;
     }
 }
